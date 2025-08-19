@@ -68,19 +68,6 @@ with st.sidebar:
         ["Mumbai", "Delhi", "Bangalore", "Chennai", "Kolkata", "Hyderabad", "Pune", "Lucknow", "Jaipur"],
         key="city_selector"
     )
-    
-    # Add error handling for system status
-    if st.button("🔍 Check System Status"):
-        with st.spinner("Checking system status..."):
-            try:
-                # Check if cerebrum_engine exists
-                if 'cerebrum_engine' in globals():
-                    status = cerebrum_engine.get_system_status()
-                    st.json(status)
-                else:
-                    st.warning("cerebrum_engine not available")
-            except Exception as e:
-                st.error(f"Error checking system status: {e}")
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -234,5 +221,6 @@ if st.checkbox("Show System Information"):
     with col2:
         st.metric("🔊 Speech Output", "Available" if text_to_speech and text_to_speech.is_available() else "Unavailable")
         st.metric("💬 Total Messages", len(st.session_state.messages))
+
 
 
