@@ -20,7 +20,8 @@ spacy>=3.7.0
 nest-asyncio>=1.5.8
 streamlit-webrtc>=0.47.0
 PyAudio>=0.2.11
-streamlit-audiorecorder
+streamlit-audiorec
+
 
 
 
