@@ -43,6 +43,20 @@ st.subheader("Advanced Agricultural Intelligence Assistant")
 
 with st.sidebar:
     st.header("🔧 System Controls")
+    
+    # Navigation buttons
+    st.subheader("🚀 Quick Access")
+    
+    # Button 1 - Voice-Powered Digital Ledger
+    if st.button("🎙️ Voice Ledger", use_container_width=True):
+        st.switch_page("https://voice-powered-digital-ledger-krishi-mitra-ai.streamlit.app/")
+    
+    # Button 2 - Emotion Detection & SOS Alert
+    if st.button("🚨 SOS Alert System", use_container_width=True):
+        st.switch_page("https://emotion-detection-sos-allert-krishi-mitra-ai.streamlit.app/")
+    
+    st.divider()  # Add a visual separator
+    
     st.subheader("📍 Location Settings")
     city = st.selectbox(
         "Select City:",
@@ -58,6 +72,7 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 if "processing" not in st.session_state:
     st.session_state.processing = False
+
 
 st.header("💬 Chat Interface")
 chat_container = st.container()
@@ -205,3 +220,4 @@ if st.checkbox("Show System Information"):
     with col2:
         st.metric("🔊 Speech Output", "Available" if text_to_speech and text_to_speech.is_available() else "Unavailable")
         st.metric("💬 Total Messages", len(st.session_state.messages))
+
