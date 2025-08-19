@@ -47,15 +47,20 @@ with st.sidebar:
     # Navigation buttons
     st.subheader("🚀 Quick Access")
     
-    # Button 1 - Voice-Powered Digital Ledger
-    if st.button("🎙️ Voice Ledger", use_container_width=True):
-        st.switch_page("https://voice-powered-digital-ledger-krishi-mitra-ai.streamlit.app/")
+    # Use st.link_button for external links
+    st.link_button(
+        "🎙️ Voice Ledger",
+        "https://voice-powered-digital-ledger-krishi-mitra-ai.streamlit.app/",
+        use_container_width=True
+    )
     
-    # Button 2 - Emotion Detection & SOS Alert
-    if st.button("🚨 SOS Alert System", use_container_width=True):
-        st.switch_page("https://emotion-detection-sos-allert-krishi-mitra-ai.streamlit.app/")
+    st.link_button(
+        "🚨 SOS Alert System", 
+        "https://emotion-detection-sos-allert-krishi-mitra-ai.streamlit.app/",
+        use_container_width=True
+    )
     
-    st.divider()  # Add a visual separator
+    st.divider()
     
     st.subheader("📍 Location Settings")
     city = st.selectbox(
@@ -63,10 +68,19 @@ with st.sidebar:
         ["Mumbai", "Delhi", "Bangalore", "Chennai", "Kolkata", "Hyderabad", "Pune", "Lucknow", "Jaipur"],
         key="city_selector"
     )
+    
+    # Add error handling for system status
     if st.button("🔍 Check System Status"):
         with st.spinner("Checking system status..."):
-            status = cerebrum_engine.get_system_status()
-            st.json(status)
+            try:
+                # Check if cerebrum_engine exists
+                if 'cerebrum_engine' in globals():
+                    status = cerebrum_engine.get_system_status()
+                    st.json(status)
+                else:
+                    st.warning("cerebrum_engine not available")
+            except Exception as e:
+                st.error(f"Error checking system status: {e}")
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -220,4 +234,5 @@ if st.checkbox("Show System Information"):
     with col2:
         st.metric("🔊 Speech Output", "Available" if text_to_speech and text_to_speech.is_available() else "Unavailable")
         st.metric("💬 Total Messages", len(st.session_state.messages))
+
 
