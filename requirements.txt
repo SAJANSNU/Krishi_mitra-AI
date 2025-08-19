@@ -13,10 +13,12 @@ requests>=2.31.0
 python-dotenv>=1.0.0
 openai-whisper
 vosk>=0.3.45
-sounddevice>=0.4.6  # Replaces pyaudio
+sounddevice>=0.4.6
 soundfile>=0.12.1
 gtts>=2.4.0
 spacy>=3.7.0
 nest-asyncio>=1.5.8
 streamlit-webrtc>=0.47.0
+PyAudio>=0.2.11
+
 
