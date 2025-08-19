@@ -204,11 +204,6 @@ with col1:
     if st.button("🧹 Clear Chat") and not st.session_state.processing:
         st.session_state.messages = []
         st.rerun()
-with col2:
-    if st.button("📊 Show Analytics") and st.session_state.messages:
-        user_msgs = len([m for m in st.session_state.messages if m["role"] == "user"])
-        bot_msgs = len([m for m in st.session_state.messages if m["role"] == "assistant"])
-        st.info(f"Conversation: {user_msgs} questions, {bot_msgs} responses")
 
 st.markdown("---")
 st.info("💡 **Tips**: Ask about crop prices, weather forecasts, farming advice, or government schemes. Record or upload your voice for transcription!")
@@ -221,6 +216,7 @@ if st.checkbox("Show System Information"):
     with col2:
         st.metric("🔊 Speech Output", "Available" if text_to_speech and text_to_speech.is_available() else "Unavailable")
         st.metric("💬 Total Messages", len(st.session_state.messages))
+
 
 
 
