@@ -1,12 +1,18 @@
 import streamlit as st
 import os
+import io
 import logging
 from src.core.cerebrum_engine import CerebrumEngine
 from src.speech.stt import SpeechToText
 from src.speech.tts import TextToSpeech
 
-# Import the Streamlit audio recorder component
-from streamlit_audio_recorder import audio_recorder  # pip install streamlit-audio-recorder
+# Import the audio recorder component (same as ledger.py)
+# pip install streamlit-audiorec
+from st_audiorec import st_audiorec
+import soundfile as sf
+import numpy as np
+
+ENABLE_WHISPER = True  # Set True to enable server-side Whisper transcription
 
 logging.basicConfig(level=logging.INFO)
 
@@ -72,33 +78,48 @@ input_method = st.radio(
     horizontal=True,
     key="input_method"
 )
+
 user_input = None
 
 if input_method == "Text":
     user_input = st.chat_input("Ask me about farming, weather, prices, or government schemes...")
 
 elif input_method == "Voice (Record)":
-    st.info("Click 'Start' to record your question and then 'Stop' to finish. You will see the waveform and can playback before submitting.")
-    audio_bytes = audio_recorder(
-        pause_threshold=2.0,
-        sample_rate=16000,
-        text="",
-        recording_color="#e8b62c",
-        neutral_color="#6aa36f",
-        icon_size="2x",
-    )
-    if audio_bytes and not st.session_state.processing:
-        # bytesIO interface compatibility for STT
-        import io
-        audio_file = io.BytesIO(audio_bytes)
-        # Whisper transcribes from file-like object
-        with st.spinner("🔄 Transcribing your question..."):
-            result = speech_to_text.transcribe_blob(audio_file)
-        if result["success"]:
-            user_input = result["text"]
-            st.success(f"Transcribed: {user_input}")
-        else:
-            st.error(f"Transcription failed: {result.get('error', 'Unknown error')}")
+    # Using the same logic as ledger.py
+    st.info("Click the mic button, speak for 5–10s, then stop. The recorder returns WAV bytes directly.")
+    
+    wav_audio_bytes = st_audiorec()  # returns WAV bytes or None
+    
+    if wav_audio_bytes and not st.session_state.processing:
+        if st.button("🔄 Process Recording"):
+            try:
+                # Validate/normalize audio using soundfile (same as ledger.py)
+                data, sr = sf.read(io.BytesIO(wav_audio_bytes), dtype="float32", always_2d=False)
+                if isinstance(data, np.ndarray) and data.ndim > 1:
+                    data = data.mean(axis=1)  # mono
+                
+                # Re-encode to a clean WAV buffer
+                buf = io.BytesIO()
+                sf.write(buf, data, sr, subtype="PCM_16", format="WAV")
+                wav_clean_bytes = buf.getvalue()
+                st.success(f"Audio captured (sr={sr} Hz).")
+                
+                transcript = ""
+                if ENABLE_WHISPER:
+                    with st.spinner("🔄 Transcribing with Whisper..."):
+                        # Use the same transcription logic as ledger.py
+                        result = speech_to_text.transcribe_blob(io.BytesIO(wav_clean_bytes))
+                        if result["success"]:
+                            transcript = result["text"]
+                
+                if transcript:
+                    user_input = transcript
+                    st.success(f"Transcribed: {user_input}")
+                else:
+                    st.error("Transcription failed or returned empty text.")
+                    
+            except Exception as e:
+                st.error(f"Audio processing failed: {e}")
 
 elif input_method == "Voice (Upload)":
     uploaded_audio = st.file_uploader(
@@ -115,7 +136,7 @@ elif input_method == "Voice (Upload)":
         else:
             st.error(f"Transcription failed: {result.get('error', 'Unknown error')}")
 
-# Process user input
+# Process user input (rest remains the same)
 if user_input and not st.session_state.processing:
     st.session_state.processing = True
     st.session_state.messages.append({
@@ -161,7 +182,7 @@ if user_input and not st.session_state.processing:
     st.session_state.processing = False
     st.rerun()
 
-# Chat management
+# Chat management (rest remains the same)
 col1, col2, col3 = st.columns([1, 1, 2])
 with col1:
     if st.button("🧹 Clear Chat") and not st.session_state.processing:
