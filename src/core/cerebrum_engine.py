@@ -47,11 +47,11 @@ class CerebrumEngine:
                 crop = self._extract_crop_from_query(query)
                 context_data = self._get_market_context(crop)
             elif include_context:
-                context_data = self.rag_engine.search_agricultural_knowledge(
-                    query=query,
-                    context_type=self._map_intent_to_context_type(analysis.intent)
-                )
-
+                context_data = self.rag_engine.retrieve(
+                            query=query,
+                            context_type=self._map_intent_to_context_type(analysis.intent)
+                        )
+                
             log.info(f"Context retrieved: {type(context_data)} with data")
 
             # Step 3: Route to appropriate LLM based on complexity WITH CONTEXT
@@ -251,3 +251,4 @@ class CerebrumEngine:
         """Get only intent classification without full processing"""
         analysis = self.intent_classifier.analyze_query(query)
         return self.intent_classifier.get_classification_summary(analysis)
+
